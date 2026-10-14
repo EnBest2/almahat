@@ -3,1551 +3,775 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ÖrökségSzéf — Digitális Végrendelet és Vészhelyzeti Széf</title>
+<title>AetherVault — Személyes tudásgráf & bizonyíték-napló</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #080b12;
-  --panel: #111624;
-  --panel2: #171d2e;
-  --panel3: #1d2437;
-  --border: #232b42;
-  --text: #e8eefc;
-  --muted: #8a94ab;
-  --accent: #5b8dff;
-  --accent2: #9d6dff;
-  --danger: #ff5470;
-  --success: #2fd584;
-  --warn: #ffbb4d;
-  --radius: 12px;
-}
-html, body { height: 100%; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
-  background: radial-gradient(1200px 600px at 20% -10%, #16203a 0%, transparent 60%),
-              radial-gradient(900px 500px at 100% 0%, #1a1230 0%, transparent 55%),
-              var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  font-size: 15px;
-  line-height: 1.5;
-}
-button, input, textarea, select { font-family: inherit; font-size: inherit; color: inherit; }
-button { cursor: pointer; border: none; background: none; }
-input, textarea, select {
-  background: var(--panel2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  width: 100%;
-  outline: none;
-  transition: border-color .15s, box-shadow .15s;
-}
-input:focus, textarea:focus, select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(91,141,255,.15);
-}
-textarea { resize: vertical; min-height: 90px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; }
-label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
-.field { margin-bottom: 14px; }
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 10px 16px;
-  border-radius: 9px;
-  background: var(--panel3);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-weight: 500;
-  transition: all .15s;
-  white-space: nowrap;
-}
-.btn:hover { background: #232b45; border-color: #333c5c; }
-.btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; color: white; }
-.btn.primary:hover { filter: brightness(1.1); }
-.btn.danger { background: rgba(255,84,112,.1); border-color: rgba(255,84,112,.35); color: var(--danger); }
-.btn.danger:hover { background: rgba(255,84,112,.18); }
-.btn.success { background: rgba(47,213,132,.1); border-color: rgba(47,213,132,.35); color: var(--success); }
-.btn.success:hover { background: rgba(47,213,132,.2); }
-.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
-.btn.ghost:hover { background: var(--panel2); color: var(--text); }
-.btn:disabled { opacity: .5; cursor: not-allowed; }
-.btn.sm { padding: 6px 12px; font-size: 13px; }
-.btn.xs { padding: 4px 9px; font-size: 12px; border-radius: 6px; }
+  :root {
+    --bg: #0b0f14;
+    --surface: #12181f;
+    --surface2: #1a222d;
+    --border: #2a3544;
+    --text: #e8eef6;
+    --muted: #8b9bb4;
+    --accent: #5b9cff;
+    --accent2: #7c5cff;
+    --success: #3dd68c;
+    --warn: #f5a524;
+    --danger: #f31260;
+    --radius: 12px;
+    --font: "Inter", system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+  #app { display: flex; height: 100vh; overflow: hidden; }
 
-/* ---- Lock / Setup ---- */
-.lock-wrap {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-.lock-card {
-  width: 100%;
-  max-width: 440px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 30px 80px rgba(0,0,0,.5);
-}
-.lock-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
-.logo {
-  width: 38px; height: 38px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 18px; color: white;
-  box-shadow: 0 6px 20px rgba(91,141,255,.35);
-}
-.lock-brand h1 { font-size: 19px; font-weight: 650; letter-spacing: -.01em; }
-.lock-sub { color: var(--muted); font-size: 13.5px; margin-bottom: 26px; line-height: 1.55; }
+  /* Sidebar */
+  .sidebar {
+    width: 280px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  .logo {
+    padding: 20px 18px 12px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo span { color: var(--accent); }
+  .nav { flex: 1; overflow-y: auto; padding: 8px; }
+  .nav-section { margin-bottom: 18px; }
+  .nav-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 6px 10px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 0.92rem;
+    transition: all 0.15s;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: rgba(91,156,255,0.12); color: var(--accent); }
+  .nav-item .count {
+    margin-left: auto;
+    font-size: 0.75rem;
+    background: var(--surface2);
+    padding: 1px 7px;
+    border-radius: 10px;
+    color: var(--muted);
+  }
 
-/* ---- App shell ---- */
-.app {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  min-height: 100vh;
-}
-.sidebar {
-  background: linear-gradient(180deg, var(--panel), #0d121e);
-  border-right: 1px solid var(--border);
-  padding: 22px 16px;
-  display: flex; flex-direction: column;
-  position: sticky; top: 0; height: 100vh;
-  overflow-y: auto;
-}
-.side-brand {
-  display: flex; align-items: center; gap: 10px;
-  padding: 0 8px 22px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 16px;
-}
-.side-brand .logo { width: 32px; height: 32px; font-size: 15px; }
-.side-brand h1 { font-size: 15px; font-weight: 650; }
-.side-brand small { display: block; font-size: 11px; color: var(--muted); font-weight: 400; }
-.nav-item {
-  display: flex; align-items: center; gap: 11px;
-  padding: 10px 12px;
-  border-radius: 9px;
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  margin-bottom: 2px;
-  transition: all .12s;
-  width: 100%;
-  text-align: left;
-}
-.nav-item:hover { background: var(--panel2); color: var(--text); }
-.nav-item.active { background: linear-gradient(135deg, rgba(91,141,255,.18), rgba(157,109,255,.12)); color: var(--text); }
-.nav-item .ico { width: 18px; text-align: center; opacity: .85; }
-.nav-item .badge {
-  margin-left: auto;
-  background: var(--panel3);
-  color: var(--muted);
-  font-size: 11px;
-  padding: 2px 7px;
-  border-radius: 20px;
-  font-weight: 600;
-}
-.side-foot { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
-.checkin-mini {
-  background: var(--panel2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px;
-  font-size: 12px;
-}
-.checkin-mini .lbl { color: var(--muted); margin-bottom: 4px; }
-.checkin-mini .val { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  /* Main */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar {
+    height: 56px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 12px;
+    background: var(--surface);
+  }
+  .search-wrap { flex: 1; max-width: 420px; position: relative; }
+  .search-wrap input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px 8px 36px;
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+  }
+  .btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+  .btn:hover { background: var(--border); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { filter: brightness(1.1); }
+  .btn.ghost { background: transparent; border-color: transparent; }
+  .btn.danger { background: transparent; border-color: var(--danger); color: var(--danger); }
 
-.main { padding: 32px 40px 60px; max-width: 1100px; }
-.page-head { margin-bottom: 26px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
-.page-head h2 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; }
-.page-head p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .content { flex: 1; overflow-y: auto; padding: 24px; }
 
-.card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 16px;
-}
-.card h3 { font-size: 15px; font-weight: 650; margin-bottom: 14px; }
+  /* Cards grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card-title { font-weight: 600; font-size: 1.05rem; }
+  .card-meta { font-size: 0.78rem; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+  .tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(91,156,255,0.15);
+    color: var(--accent);
+  }
+  .tag.warn { background: rgba(245,165,36,0.15); color: var(--warn); }
+  .tag.success { background: rgba(61,214,140,0.15); color: var(--success); }
+  .tag.danger { background: rgba(243,18,96,0.15); color: var(--danger); }
+  .card-excerpt { font-size: 0.88rem; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
-@media (max-width: 900px) {
-  .app { grid-template-columns: 1fr; }
-  .sidebar { position: relative; height: auto; }
-  .main { padding: 20px; }
-  .grid-2, .grid-3 { grid-template-columns: 1fr; }
-}
+  /* Detail / Editor */
+  .editor-view { max-width: 780px; margin: 0 auto; }
+  .editor-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; gap: 12px; }
+  .editor-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    width: 100%;
+    outline: none;
+  }
+  .editor-title::placeholder { color: var(--muted); }
+  .field-group { margin-bottom: 18px; }
+  .field-label { font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; display: block; }
+  textarea, input[type="text"], select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.95rem;
+    resize: vertical;
+  }
+  textarea { min-height: 120px; }
+  .evidence-list { display: flex; flex-direction: column; gap: 10px; }
+  .evidence-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+  }
+  .evidence-item .source { font-size: 0.82rem; color: var(--accent); }
+  .cred-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .cred-fill { height: 100%; border-radius: 2px; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 24px; }
 
-/* Check-in hero */
-.hero {
-  background: linear-gradient(135deg, rgba(91,141,255,.10), rgba(157,109,255,.06));
-  border: 1px solid rgba(91,141,255,.25);
-  border-radius: 14px;
-  padding: 24px;
-  display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-.hero.warn { background: linear-gradient(135deg, rgba(255,187,77,.12), rgba(255,84,112,.06)); border-color: rgba(255,187,77,.35); }
-.hero.danger { background: linear-gradient(135deg, rgba(255,84,112,.14), rgba(255,84,112,.05)); border-color: rgba(255,84,112,.45); }
-.hero .num { font-size: 44px; font-weight: 800; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1; }
-.hero .sub { color: var(--muted); font-size: 13.5px; margin-top: 6px; }
-.hero .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; margin-bottom: 6px; }
+  /* Empty state */
+  .empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+  }
+  .empty h2 { color: var(--text); margin-bottom: 8px; }
+  .empty p { max-width: 400px; margin: 0 auto 20px; }
 
-.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
-@media (max-width: 700px){ .stat-row { grid-template-columns: repeat(2,1fr); } }
-.stat {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 11px;
-  padding: 14px 16px;
-}
-.stat .k { color: var(--muted); font-size: 12px; font-weight: 500; }
-.stat .v { font-size: 22px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: auto; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 90%; max-width: 480px;
+    padding: 24px;
+    transform: translateY(12px); transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal h3 { margin-bottom: 16px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
 
-/* Item list */
-.item {
-  display: flex; align-items: center; gap: 14px;
-  padding: 14px 16px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 11px;
-  margin-bottom: 8px;
-  transition: all .12s;
-}
-.item:hover { border-color: #2c3757; background: var(--panel2); }
-.item-ico {
-  width: 38px; height: 38px;
-  border-radius: 9px;
-  background: var(--panel3);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 17px;
-  flex-shrink: 0;
-}
-.item-body { flex: 1; min-width: 0; }
-.item-body .title { font-weight: 600; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.item-body .meta { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
-.tag {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--panel3);
-  color: var(--muted);
-  margin-right: 6px;
-}
-.tag.blue { background: rgba(91,141,255,.15); color: #8bb0ff; }
-.tag.green { background: rgba(47,213,132,.15); color: #5fe0a0; }
-.tag.orange { background: rgba(255,187,77,.15); color: #ffcc74; }
-.tag.purple { background: rgba(157,109,255,.15); color: #bb9bff; }
+  /* Stats */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .stat-value { font-size: 1.8rem; font-weight: 700; }
+  .stat-label { font-size: 0.8rem; color: var(--muted); }
 
-.empty {
-  text-align: center;
-  padding: 48px 20px;
-  color: var(--muted);
-}
-.empty .big { font-size: 42px; margin-bottom: 12px; opacity: .5; }
+  /* Graph view */
+  .graph-container {
+    height: calc(100vh - 140px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    position: relative;
+    overflow: hidden;
+  }
+  canvas { width: 100%; height: 100%; }
 
-/* Modal */
-.modal-bg {
-  position: fixed; inset: 0;
-  background: rgba(4,6,12,.75);
-  backdrop-filter: blur(6px);
-  display: flex; align-items: center; justify-content: center;
-  padding: 24px;
-  z-index: 100;
-  animation: fade .15s ease-out;
-}
-@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-.modal {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  width: 100%;
-  max-width: 560px;
-  max-height: 88vh;
-  overflow-y: auto;
-  box-shadow: 0 40px 100px rgba(0,0,0,.6);
-  animation: pop .18s cubic-bezier(.2,.9,.3,1.2);
-}
-@keyframes pop { from { transform: scale(.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.modal-head {
-  padding: 18px 22px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0;
-  background: var(--panel);
-  z-index: 1;
-}
-.modal-head h3 { font-size: 16px; font-weight: 650; }
-.modal-body { padding: 22px; }
-.modal-foot {
-  padding: 16px 22px;
-  border-top: 1px solid var(--border);
-  display: flex; justify-content: flex-end; gap: 10px;
-  position: sticky; bottom: 0;
-  background: var(--panel);
-}
-.close-x { color: var(--muted); font-size: 22px; line-height: 1; padding: 0 4px; }
-.close-x:hover { color: var(--text); }
-
-/* Toast */
-.toasts {
-  position: fixed;
-  bottom: 20px; right: 20px;
-  display: flex; flex-direction: column; gap: 8px;
-  z-index: 200;
-}
-.toast {
-  background: var(--panel3);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: 9px;
-  padding: 12px 16px;
-  font-size: 13.5px;
-  box-shadow: 0 20px 50px rgba(0,0,0,.5);
-  animation: slide .2s ease-out;
-  max-width: 320px;
-}
-.toast.success { border-left-color: var(--success); }
-.toast.danger { border-left-color: var(--danger); }
-.toast.warn { border-left-color: var(--warn); }
-@keyframes slide { from { transform: translateX(20px); opacity: 0; } to { transform: none; opacity: 1; } }
-
-.code-display {
-  background: #05070d;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  padding: 14px;
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 13px;
-  word-break: break-all;
-  color: #a7b6d6;
-  line-height: 1.6;
-}
-
-.switch {
-  display: inline-flex;
-  width: 42px; height: 24px;
-  background: var(--panel3);
-  border-radius: 20px;
-  position: relative;
-  cursor: pointer;
-  transition: background .15s;
-  border: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.switch.on { background: var(--accent); border-color: var(--accent); }
-.switch::after {
-  content: '';
-  position: absolute;
-  top: 2px; left: 2px;
-  width: 18px; height: 18px;
-  background: white;
-  border-radius: 50%;
-  transition: transform .18s;
-}
-.switch.on::after { transform: translateX(18px); }
-
-.row { display: flex; align-items: center; gap: 12px; }
-.row.between { justify-content: space-between; }
-.divider { height: 1px; background: var(--border); margin: 16px 0; }
-.hint { color: var(--muted); font-size: 12.5px; margin-top: 6px; }
-.danger-zone { border-color: rgba(255,84,112,.35); }
-.danger-zone h3 { color: var(--danger); }
-
-.avatar {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #5b8dff, #9d6dff);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 650; font-size: 14px; color: white;
-  flex-shrink: 0;
-}
-.avatar.g2 { background: linear-gradient(135deg, #2fd584, #5b8dff); }
-.avatar.g3 { background: linear-gradient(135deg, #ff5470, #9d6dff); }
-.avatar.g4 { background: linear-gradient(135deg, #ffbb4d, #ff5470); }
-.avatar.g5 { background: linear-gradient(135deg, #9d6dff, #2fd584); }
-
-.kbd {
-  display: inline-block;
-  padding: 2px 6px;
-  background: var(--panel3);
-  border: 1px solid var(--border);
-  border-bottom-width: 2px;
-  border-radius: 5px;
-  font-family: ui-monospace, monospace;
-  font-size: 11.5px;
-  color: var(--muted);
-}
-
-.checklist { list-style: none; }
-.checklist li { display: flex; gap: 10px; padding: 8px 0; align-items: flex-start; font-size: 14px; }
-.checklist li::before { content: '✓'; color: var(--success); font-weight: 700; flex-shrink: 0; }
-
-.scroll-x { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
-th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
-tr:last-child td { border-bottom: none; }
+  /* Responsive */
+  @media (max-width: 768px) {
+    .sidebar { width: 64px; }
+    .nav-label, .logo span, .nav-item span:not(.icon) { display: none; }
+    .logo { justify-content: center; }
+    .nav-item { justify-content: center; }
+  }
 </style>
 </head>
 <body>
-<div id="root"></div>
-<div class="toasts" id="toasts"></div>
+<div id="app">
+  <aside class="sidebar">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      <span>AetherVault</span>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">
+        <div class="nav-label">Nézetek</div>
+        <div class="nav-item active" data-view="claims">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span>Állítások</span>
+          <span class="count" id="count-claims">0</span>
+        </div>
+        <div class="nav-item" data-view="graph">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          <span>Tudásgráf</span>
+        </div>
+        <div class="nav-item" data-view="stats">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+          <span>Statisztika</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Szűrők</div>
+        <div class="nav-item" data-filter="all">
+          <span class="icon">◉</span><span>Összes</span>
+        </div>
+        <div class="nav-item" data-filter="verified">
+          <span class="icon">✓</span><span>Ellenőrzött</span>
+        </div>
+        <div class="nav-item" data-filter="disputed">
+          <span class="icon">⚠</span><span>Vitatott</span>
+        </div>
+        <div class="nav-item" data-filter="unverified">
+          <span class="icon">?</span><span>Ellenőrizetlen</span>
+        </div>
+      </div>
+    </nav>
+    <div style="padding:12px;border-top:1px solid var(--border)">
+      <button class="btn primary" style="width:100%" id="btn-new">+ Új állítás</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="search" placeholder="Keresés állítások, források, címkék között…">
+      </div>
+      <button class="btn" id="btn-export">Export JSON</button>
+      <button class="btn" id="btn-import">Import</button>
+      <input type="file" id="import-file" accept=".json" style="display:none">
+    </div>
+    <div class="content" id="content"></div>
+  </main>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modal-title">Új állítás</h3>
+    <div class="field-group">
+      <label class="field-label">Állítás</label>
+      <input type="text" id="m-claim" placeholder="Pl. A Föld átlaghőmérséklete 2025-ben 1.5°C-kal nőtt az ipari forradalom óta">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Státusz</label>
+      <select id="m-status">
+        <option value="unverified">Ellenőrizetlen</option>
+        <option value="verified">Ellenőrzött</option>
+        <option value="disputed">Vitatott</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Címkék (vesszővel)</label>
+      <input type="text" id="m-tags" placeholder="klíma, tudomány, 2025">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Jegyzet / kontextus</label>
+      <textarea id="m-note" placeholder="Miért fontos? Honnan hallottad?"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="modal-cancel">Mégse</button>
+      <button class="btn primary" id="modal-save">Mentés</button>
+    </div>
+  </div>
+</div>
 
 <script>
-/* ============================================================
-   ÖrökségSzéf — teljes egyoldalas alkalmazás
-   Minden adat helyben, AES-GCM-mel titkosítva, a jelszóból
-   PBKDF2-vel származtatott kulccsal. Nincs szerver.
-   ============================================================ */
+const STORAGE_KEY = 'aethervault_v1';
+let data = { claims: [] };
+let currentView = 'claims';
+let currentFilter = 'all';
+let editingId = null;
+let searchQuery = '';
 
-const STORAGE_KEY = 'orokseg_szef_v1';
-const SESSION_TIMEOUT_MS = 10 * 60 * 1000; // 10 perc
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
-const state = {
-  key: null,
-  salt: null,
-  data: null,
-  unlocked: false,
-  tab: 'dashboard',
-  lastActivity: Date.now(),
-  modal: null,
-};
-
-/* ---------- Crypto helpers ---------- */
-function b64(buf) {
-  const bytes = new Uint8Array(buf);
-  let s = '';
-  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
-  return btoa(s);
-}
-function unb64(str) {
-  const bin = atob(str);
-  const arr = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-  return arr;
-}
-async function deriveKey(password, salt, iterations = 300000) {
-  const enc = new TextEncoder();
-  const km = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
-    km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
-  );
-}
-async function encryptJSON(key, obj) {
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const pt = new TextEncoder().encode(JSON.stringify(obj));
-  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, pt);
-  return { iv: b64(iv), ct: b64(ct) };
-}
-async function decryptJSON(key, blob) {
-  const iv = unb64(blob.iv);
-  const ct = unb64(blob.ct);
-  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
-  return JSON.parse(new TextDecoder().decode(pt));
-}
-function randomId() {
-  return crypto.getRandomValues(new Uint8Array(8)).reduce((a, b) => a + b.toString(16).padStart(2, '0'), '');
-}
-function randomPassphrase(words = 5) {
-  const list = ['alma','hegy','folyó','kék','csillag','erdő','tenger','hold','tűz','szél','kő','madár','virág','hajnal','éj','híd','vár','kapu','út','felhő','eső','hó','nap','homok','üveg','vas','ezüst','arany','kert','mező','patak','sziget','barlang','tükör','lámpás','kulcs','zár','könyv','toll','térkép','iránytű','hajó','vitorla','kikötő','torony','harang','zászló','pajzs','kard','nyíl'];
-  const out = [];
-  const rnd = crypto.getRandomValues(new Uint32Array(words));
-  for (let i = 0; i < words; i++) out.push(list[rnd[i] % list.length]);
-  return out.join('-');
-}
-
-/* ---------- Storage ---------- */
-function loadRaw() {
+function load() {
   try {
-    const s = localStorage.getItem(STORAGE_KEY);
-    return s ? JSON.parse(s) : null;
-  } catch { return null; }
-}
-async function persist() {
-  if (!state.key || !state.data) return;
-  const blob = await encryptJSON(state.key, state.data);
-  const payload = { v: 1, salt: b64(state.salt), iv: blob.iv, ct: blob.ct, updated: Date.now() };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-}
-function emptyData() {
-  return {
-    items: [],
-    recipients: [],
-    config: {
-      checkInIntervalDays: 30,
-      gracePeriodDays: 7,
-      lastCheckIn: Date.now(),
-      createdAt: Date.now(),
-      emergencyNote: '',
-      executorName: '',
-      executorContact: '',
-    },
-    log: [],
-  };
-}
-function logEvent(msg) {
-  if (!state.data) return;
-  state.data.log.unshift({ t: Date.now(), msg });
-  if (state.data.log.length > 300) state.data.log.length = 300;
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) data = JSON.parse(raw);
+  } catch(e) {}
+  if (!data.claims) data.claims = [];
 }
 
-/* ---------- Toast ---------- */
-function toast(msg, kind = '') {
-  const el = document.createElement('div');
-  el.className = 'toast ' + kind;
-  el.textContent = msg;
-  document.getElementById('toasts').appendChild(el);
-  setTimeout(() => {
-    el.style.transition = 'opacity .3s, transform .3s';
-    el.style.opacity = '0';
-    el.style.transform = 'translateX(20px)';
-    setTimeout(() => el.remove(), 320);
-  }, 3200);
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  updateCounts();
 }
 
-/* ---------- Utils ---------- */
-function esc(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
-function fmtDate(ts) {
-  const d = new Date(ts);
-  return d.toLocaleDateString('hu-HU', { year: 'numeric', month: 'short', day: 'numeric' });
-}
-function fmtDateTime(ts) {
-  const d = new Date(ts);
-  return d.toLocaleString('hu-HU', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-}
-function daysBetween(a, b) { return Math.round((b - a) / 86400000); }
-function relTime(ts) {
-  const diff = Date.now() - ts;
-  const m = Math.floor(diff / 60000);
-  if (m < 1) return 'most';
-  if (m < 60) return m + ' perce';
-  const h = Math.floor(m / 60);
-  if (h < 24) return h + ' órája';
-  const d = Math.floor(h / 24);
-  if (d < 30) return d + ' napja';
-  return fmtDate(ts);
+function updateCounts() {
+  document.getElementById('count-claims').textContent = data.claims.length;
 }
 
-const ITEM_TYPES = {
-  password: { label: 'Jelszó / fiók', icon: '🔑', color: 'blue' },
-  bank:     { label: 'Bank / pénzügy', icon: '💳', color: 'green' },
-  crypto:   { label: 'Kriptopénztárca', icon: '🪙', color: 'orange' },
-  insurance:{ label: 'Biztosítás', icon: '🛡️', color: 'purple' },
-  message:  { label: 'Személyes üzenet', icon: '💌', color: 'blue' },
-  doc:      { label: 'Dokumentum / hely', icon: '📄', color: 'green' },
-  access:   { label: 'Hozzáférés / eszköz', icon: '🔐', color: 'purple' },
-  other:    { label: 'Egyéb', icon: '📌', color: '' },
-};
-
-/* ---------- Check-in status ---------- */
-function checkinStatus() {
-  const c = state.data.config;
-  const last = c.lastCheckIn;
-  const deadline = last + c.checkInIntervalDays * 86400000;
-  const graceEnd = deadline + c.gracePeriodDays * 86400000;
-  const now = Date.now();
-  const daysLeft = Math.ceil((deadline - now) / 86400000);
-  const graceLeft = Math.ceil((graceEnd - now) / 86400000);
-  let status = 'ok';
-  if (now >= graceEnd) status = 'overdue';
-  else if (now >= deadline) status = 'grace';
-  else if (daysLeft <= 5) status = 'warn';
-  return { status, daysLeft, graceLeft, deadline, graceEnd, last };
+function statusLabel(s) {
+  return { verified: 'Ellenőrzött', disputed: 'Vitatott', unverified: 'Ellenőrizetlen' }[s] || s;
+}
+function statusClass(s) {
+  return { verified: 'success', disputed: 'warn', unverified: '' }[s] || '';
 }
 
-/* ============================================================
-   RENDER — Lock / Setup
-   ============================================================ */
-function renderLock(root) {
-  const existing = loadRaw();
-  const isSetup = !existing;
-  root.innerHTML = `
-    <div class="lock-wrap">
-      <div class="lock-card">
-        <div class="lock-brand">
-          <div class="logo">Ö</div>
-          <h1>ÖrökségSzéf</h1>
-        </div>
-        <p class="lock-sub">${isSetup
-          ? 'Hozd létre a széfed. Egyetlen mesterjelszó védi az összes jelszavadat, üzenetedet és utasításodat, amit a szeretteidnek hagysz.'
-          : 'Írd be a mesterjelszavad a széf feloldásához.'}</p>
-
-        <div class="field">
-          <label>Mesterjelszó</label>
-          <input type="password" id="pw1" autocomplete="${isSetup ? 'new-password' : 'current-password'}" placeholder="••••••••••••">
-        </div>
-        ${isSetup ? `
-        <div class="field">
-          <label>Mesterjelszó újra</label>
-          <input type="password" id="pw2" autocomplete="new-password" placeholder="••••••••••••">
-        </div>
-        <div class="field">
-          <div class="row between">
-            <label style="margin:0">Erős jelszót generálok</label>
-            <button class="btn sm ghost" id="genpw">Generálás</button>
-          </div>
-        </div>
-        <div class="hint" style="margin-bottom:18px">
-          ⚠️ Ez a jelszó <b>nem állítható vissza</b>. Írd fel papírra, és tartsd biztonságos helyen — a széf kulcsa ebből származik.
-        </div>` : `<div style="height:8px"></div>`}
-        <button class="btn primary" id="submitBtn" style="width:100%; padding:12px">
-          ${isSetup ? 'Széf létrehozása' : 'Feloldás'}
-        </button>
-        ${!isSetup ? `
-        <div style="margin-top:16px; text-align:center">
-          <button class="btn ghost sm" id="wipeBtn">Minden adat törlése</button>
-        </div>` : ''}
-      </div>
-    </div>
-  `;
-
-  if (isSetup) {
-    document.getElementById('genpw').onclick = () => {
-      const p = randomPassphrase(5) + '-' + Math.floor(Math.random() * 9000 + 1000);
-      document.getElementById('pw1').value = p;
-      document.getElementById('pw2').value = p;
-      toast('Erős jelszó generálva', 'success');
-    };
-  } else {
-    document.getElementById('wipeBtn').onclick = () => {
-      if (confirm('Biztosan TÖRLÖD a széfet és minden benne lévő adatot? Ez nem visszavonható.')) {
-        localStorage.removeItem(STORAGE_KEY);
-        location.reload();
-      }
-    };
+function filteredClaims() {
+  let list = data.claims;
+  if (currentFilter !== 'all') list = list.filter(c => c.status === currentFilter);
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(c =>
+      c.claim.toLowerCase().includes(q) ||
+      (c.note||'').toLowerCase().includes(q) ||
+      (c.tags||[]).some(t => t.toLowerCase().includes(q)) ||
+      (c.evidence||[]).some(e => (e.source||'').toLowerCase().includes(q) || (e.quote||'').toLowerCase().includes(q))
+    );
   }
-
-  const submit = async () => {
-    const p1 = document.getElementById('pw1').value;
-    const p2 = isSetup ? document.getElementById('pw2').value : p1;
-    if (p1.length < 8) { toast('A jelszó legalább 8 karakter legyen', 'danger'); return; }
-    if (isSetup && p1 !== p2) { toast('A két jelszó nem egyezik', 'danger'); return; }
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.textContent = isSetup ? 'Titkosítás…' : 'Feloldás…';
-
-    try {
-      if (isSetup) {
-        state.salt = crypto.getRandomValues(new Uint8Array(16));
-        state.key = await deriveKey(p1, state.salt);
-        state.data = emptyData();
-        logEvent('Széf létrehozva');
-        await persist();
-      } else {
-        const raw = loadRaw();
-        state.salt = unb64(raw.salt);
-        state.key = await deriveKey(p1, state.salt);
-        state.data = await decryptJSON(state.key, { iv: raw.iv, ct: raw.ct });
-        // normalize
-        state.data.items ||= [];
-        state.data.recipients ||= [];
-        state.data.config ||= emptyData().config;
-        state.data.log ||= [];
-        logEvent('Széf feloldva');
-      }
-      state.unlocked = true;
-      state.lastActivity = Date.now();
-      render();
-    } catch (e) {
-      toast('Hibás jelszó vagy sérült adat', 'danger');
-      btn.disabled = false;
-      btn.textContent = isSetup ? 'Széf létrehozása' : 'Feloldás';
-    }
-  };
-
-  document.getElementById('submitBtn').onclick = submit;
-  document.querySelectorAll('#pw1,#pw2').forEach(el => {
-    el.onkeydown = (e) => { if (e.key === 'Enter') submit(); };
-  });
-  setTimeout(() => document.getElementById('pw1').focus(), 50);
+  return list.sort((a,b) => b.updated - a.updated);
 }
 
-/* ============================================================
-   RENDER — Main app
-   ============================================================ */
-function renderApp(root) {
-  const s = checkinStatus();
-  const items = state.data.items;
-  const recipients = state.data.recipients;
-  const tabTitles = {
-    dashboard: ['Áttekintés', 'A széfed állapota és a következő teendők'],
-    vault: ['Széf', 'Jelszavak, üzenetek és dokumentumok, amiket a szeretteidnek hagysz'],
-    recipients: ['Kedvezményezettek', 'Akik hozzáférhetnek a széf egyes elemeihez'],
-    switch: ['Halott ember kapcsoló', 'Automatikus jelzés, ha nem jelentkezel be'],
-    log: ['Napló', 'A széf eseményei'],
-    settings: ['Beállítások', 'Biztonsági másolat, import, export, zónák'],
-  };
-  const [title, subtitle] = tabTitles[state.tab] || ['', ''];
-
-  root.innerHTML = `
-    <div class="app">
-      <aside class="sidebar">
-        <div class="side-brand">
-          <div class="logo">Ö</div>
-          <div>
-            <h1>ÖrökségSzéf</h1>
-            <small>Digitális végrendelet</small>
-          </div>
-        </div>
-        <nav>
-          ${navBtn('dashboard', '📊', 'Áttekintés')}
-          ${navBtn('vault', '🗄️', 'Széf', items.length)}
-          ${navBtn('recipients', '👥', 'Kedvezményezettek', recipients.length)}
-          ${navBtn('switch', '⏱️', 'Kapcsoló', s.status !== 'ok' ? '!' : '')}
-          ${navBtn('log', '📜', 'Napló')}
-          ${navBtn('settings', '⚙️', 'Beállítások')}
-        </nav>
-        <div class="side-foot">
-          <div class="checkin-mini">
-            <div class="lbl">Következő bejelentkezés</div>
-            <div class="val" style="color:${s.status === 'ok' ? 'var(--success)' : s.status === 'warn' ? 'var(--warn)' : 'var(--danger)'}">
-              ${s.daysLeft > 0 ? s.daysLeft + ' nap' : (s.status === 'grace' ? 'Türelmi idő' : 'LEJÁRT')}
-            </div>
-            <button class="btn xs success" style="margin-top:8px; width:100%" onclick="doCheckIn()">Bejelentkezés</button>
-          </div>
-          <button class="btn ghost sm" style="width:100%; margin-top:10px" onclick="lockNow()">🔒 Zárolás</button>
-        </div>
-      </aside>
-      <main class="main">
-        <div class="page-head">
-          <div>
-            <h2>${esc(title)}</h2>
-            <p>${esc(subtitle)}</p>
-          </div>
-          <div id="pageActions"></div>
-        </div>
-        <div id="pageBody"></div>
-      </main>
-    </div>
-  `;
-
-  document.querySelectorAll('.nav-item').forEach(el => {
-    el.onclick = () => { state.tab = el.dataset.tab; render(); };
-  });
-
-  const body = document.getElementById('pageBody');
-  const actions = document.getElementById('pageActions');
-
-  if (state.tab === 'dashboard') renderDashboard(body, actions, s);
-  else if (state.tab === 'vault') renderVault(body, actions);
-  else if (state.tab === 'recipients') renderRecipients(body, actions);
-  else if (state.tab === 'switch') renderSwitch(body, actions, s);
-  else if (state.tab === 'log') renderLog(body, actions);
-  else if (state.tab === 'settings') renderSettings(body, actions);
-
-  if (state.modal) renderModal();
+function render() {
+  const content = document.getElementById('content');
+  if (currentView === 'claims') renderClaims(content);
+  else if (currentView === 'graph') renderGraph(content);
+  else if (currentView === 'stats') renderStats(content);
+  else if (currentView === 'detail') renderDetail(content, editingId);
 }
 
-function navBtn(tab, icon, label, badge) {
-  return `<button class="nav-item ${state.tab === tab ? 'active' : ''}" data-tab="${tab}">
-    <span class="ico">${icon}</span>
-    <span>${label}</span>
-    ${badge ? `<span class="badge">${badge}</span>` : ''}
-  </button>`;
-}
-
-/* ---------- Dashboard ---------- */
-function renderDashboard(body, actions, s) {
-  actions.innerHTML = `<button class="btn primary" onclick="openItemModal()">+ Új elem</button>`;
-
-  const totalItems = state.data.items.length;
-  const totalRec = state.data.recipients.length;
-  const assigned = state.data.items.filter(i => (i.recipients || []).length > 0).length;
-
-  let heroClass = '';
-  let heroNum, heroSub;
-  if (s.status === 'overdue') {
-    heroClass = 'danger';
-    heroNum = 'LEJÁRT';
-    heroSub = `A türelmi idő ${Math.abs(s.graceLeft)} napja lejárt. A kedvezményezettek most kaphatják meg a széfet.`;
-  } else if (s.status === 'grace') {
-    heroClass = 'danger';
-    heroNum = s.graceLeft + ' nap';
-    heroSub = `Türelmi időszak. Ha nem jelentkezel be, a széf kioldódik a kedvezményezetteknek.`;
-  } else if (s.status === 'warn') {
-    heroClass = 'warn';
-    heroNum = s.daysLeft + ' nap';
-    heroSub = `Hamarosan esedékes a bejelentkezés. Kattints a "Bejelentkezés most" gombra.`;
-  } else {
-    heroNum = s.daysLeft + ' nap';
-    heroSub = `Következő esedékes bejelentkezés: ${fmtDate(s.deadline)}`;
-  }
-
-  body.innerHTML = `
-    <div class="hero ${heroClass}">
-      <div>
-        <div class="label">Halott ember kapcsoló állapota</div>
-        <div class="num">${heroNum}</div>
-        <div class="sub">${heroSub}</div>
-      </div>
-      <button class="btn ${s.status === 'ok' ? '' : 'primary'}" onclick="doCheckIn()" style="padding:12px 22px">
-        ✓ Bejelentkezés most
-      </button>
-    </div>
-
-    <div class="stat-row">
-      <div class="stat"><div class="k">Széf elemek</div><div class="v">${totalItems}</div></div>
-      <div class="stat"><div class="k">Kedvezményezettek</div><div class="v">${totalRec}</div></div>
-      <div class="stat"><div class="k">Hozzárendelve</div><div class="v">${assigned}/${totalItems}</div></div>
-      <div class="stat"><div class="k">Utolsó bejelentkezés</div><div class="v" style="font-size:15px">${relTime(s.last)}</div></div>
-    </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <h3>Legutóbbi elemek</h3>
-        ${state.data.items.length === 0
-          ? `<div class="empty" style="padding:24px 0"><div class="big">🗄️</div><div>Még nincs semmi a széfben</div></div>`
-          : state.data.items.slice(-5).reverse().map(i => {
-              const t = ITEM_TYPES[i.type] || ITEM_TYPES.other;
-              return `<div class="item" style="padding:10px 12px; margin-bottom:6px">
-                <div class="item-ico" style="width:32px;height:32px;font-size:15px">${t.icon}</div>
-                <div class="item-body">
-                  <div class="title" style="font-size:13.5px">${esc(i.title)}</div>
-                  <div class="meta">${fmtDate(i.created)}</div>
-                </div>
-              </div>`;
-            }).join('')
-        }
-      </div>
-      <div class="card">
-        <h3>Induláshoz — 4 lépés</h3>
-        <ul class="checklist">
-          <li style="${state.data.items.length ? 'opacity:.5' : ''}">Adj hozzá legalább 3 jelszót vagy üzenetet</li>
-          <li style="${state.data.recipients.length ? 'opacity:.5' : ''}">Vegyél fel egy kedvezményezettet</li>
-          <li style="${assigned > 0 ? 'opacity:.5' : ''}">Rendelj elemeket a kedvezményezetthez</li>
-          <li style="${state.data.config.executorName ? 'opacity:.5' : ''}">Adj meg egy végrehajtót / ügyvédet</li>
-        </ul>
-        ${!state.data.config.executorName ? `
-        <button class="btn sm" style="margin-top:10px" onclick="state.tab='settings';render()">Beállítás →</button>` : ''}
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Mit tartalmaz ez a széf?</h3>
-      <p style="color:var(--muted); font-size:13.5px; line-height:1.7">
-        Minden adat a böngésződben, AES-256-GCM-mel titkosítva tárolódik. A mesterjelszóból PBKDF2 (300 000 iteráció) származtatja a kulcsot.
-        Nincs szerver, nincs felhő, nincs nyomkövetés. A „halott ember kapcsoló” csak akkor old ki, ha te beállítod — ezen a gépen.
-      </p>
-    </div>
-  `;
-}
-
-/* ---------- Vault ---------- */
-function renderVault(body, actions) {
-  actions.innerHTML = `<button class="btn primary" onclick="openItemModal()">+ Új elem</button>`;
-
-  if (state.data.items.length === 0) {
-    body.innerHTML = `<div class="empty"><div class="big">🗄️</div>
-      <h3 style="margin-bottom:6px;color:var(--text)">A széf üres</h3>
-      <p>Adj hozzá jelszavakat, bankkártya-adatokat, kriptotárcát, személyes üzeneteket.</p>
-      <button class="btn primary" style="margin-top:16px" onclick="openItemModal()">+ Első elem hozzáadása</button>
-    </div>`;
+function renderClaims(el) {
+  const list = filteredClaims();
+  if (!list.length) {
+    el.innerHTML = `
+      <div class="empty">
+        <h2>Még nincsenek állítások</h2>
+        <p>A 2026-os információs zajban a legértékesebb dolog a saját, forrásokkal alátámasztott tudásgráfod. Kezdj el gyűjteni és ellenőrizni.</p>
+        <button class="btn primary" onclick="openModal()">+ Első állítás</button>
+      </div>`;
     return;
   }
-
-  const groups = {};
-  state.data.items.forEach(i => {
-    const t = i.type || 'other';
-    (groups[t] ||= []).push(i);
-  });
-
-  body.innerHTML = Object.keys(groups).map(type => {
-    const t = ITEM_TYPES[type] || ITEM_TYPES.other;
-    return `
-      <div style="margin-bottom:22px">
-        <div style="font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; font-weight:600; margin-bottom:10px">${t.icon} ${t.label}</div>
-        ${groups[type].map(i => itemRow(i)).join('')}
+  el.innerHTML = `<div class="grid">${list.map(c => `
+    <div class="card" onclick="openDetail('${c.id}')">
+      <div class="card-title">${escapeHtml(c.claim)}</div>
+      <div class="card-meta">
+        <span class="tag ${statusClass(c.status)}">${statusLabel(c.status)}</span>
+        ${(c.tags||[]).slice(0,3).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
+        <span>${new Date(c.updated).toLocaleDateString('hu')}</span>
       </div>
-    `;
-  }).join('');
+      <div class="card-excerpt">${escapeHtml(c.note || (c.evidence&&c.evidence[0]&&c.evidence[0].quote) || '')}</div>
+    </div>`).join('')}</div>`;
 }
 
-function itemRow(i) {
-  const t = ITEM_TYPES[i.type] || ITEM_TYPES.other;
-  const recNames = (i.recipients || []).map(rid => {
-    const r = state.data.recipients.find(x => x.id === rid);
-    return r ? esc(r.name) : null;
-  }).filter(Boolean);
-  return `<div class="item">
-    <div class="item-ico">${t.icon}</div>
-    <div class="item-body">
-      <div class="title">${esc(i.title)}</div>
-      <div class="meta">
-        ${(i.recipients || []).length
-          ? `<span class="tag ${t.color}">${(i.recipients || []).length} kedvezményezett</span>`
-          : `<span class="tag">Nincs hozzárendelve</span>`}
-        ${recNames.slice(0, 3).join(', ')}${recNames.length > 3 ? '…' : ''}
-        <span style="margin-left:8px; color:var(--muted)">· ${fmtDate(i.created)}</span>
+function renderDetail(el, id) {
+  const c = data.claims.find(x => x.id === id);
+  if (!c) { currentView = 'claims'; render(); return; }
+  el.innerHTML = `
+    <div class="editor-view">
+      <div class="editor-header">
+        <input class="editor-title" id="d-claim" value="${escapeHtml(c.claim)}">
+        <button class="btn ghost" onclick="currentView='claims';render()">← Vissza</button>
       </div>
-    </div>
-    <button class="btn sm" onclick="openItemModal('${i.id}')">Szerkeszt</button>
-    <button class="btn sm ghost" onclick="deleteItem('${i.id}')" title="Törlés">✕</button>
-  </div>`;
-}
-
-function openItemModal(id) {
-  const edit = id ? state.data.items.find(x => x.id === id) : null;
-  const item = edit || { type: 'password', title: '', fields: {}, recipients: [], notes: '' };
-  const t = ITEM_TYPES[item.type] || ITEM_TYPES.other;
-
-  state.modal = {
-    title: edit ? 'Elem szerkesztése' : 'Új elem',
-    bodyHTML: `
-      <div class="field">
-        <label>Típus</label>
-        <select id="m_type">
-          ${Object.entries(ITEM_TYPES).map(([k, v]) =>
-            `<option value="${k}" ${item.type === k ? 'selected' : ''}>${v.icon} ${v.label}</option>`).join('')}
+      <div class="field-group">
+        <label class="field-label">Státusz</label>
+        <select id="d-status">
+          <option value="unverified" ${c.status==='unverified'?'selected':''}>Ellenőrizetlen</option>
+          <option value="verified" ${c.status==='verified'?'selected':''}>Ellenőrzött</option>
+          <option value="disputed" ${c.status==='disputed'?'selected':''}>Vitatott</option>
         </select>
       </div>
-      <div class="field">
-        <label>Cím</label>
-        <input id="m_title" value="${esc(item.title)}" placeholder="pl. Gmail fiók, OTP bankkártya">
+      <div class="field-group">
+        <label class="field-label">Címkék</label>
+        <input type="text" id="d-tags" value="${escapeHtml((c.tags||[]).join(', '))}">
       </div>
-      <div id="m_dynamic"></div>
-      <div class="field">
-        <label>Megjegyzés / utasítás a kedvezményezettnek</label>
-        <textarea id="m_notes" placeholder="pl. Ez a fiók a fotóidat tartalmazza. Kérlek töltsd le, mielőtt törölnéd.">${esc(item.notes || '')}</textarea>
+      <div class="field-group">
+        <label class="field-label">Jegyzet / kontextus</label>
+        <textarea id="d-note">${escapeHtml(c.note||'')}</textarea>
       </div>
-      <div class="field">
-        <label>Ki kapja meg?</label>
-        ${state.data.recipients.length === 0
-          ? `<div class="hint">Még nincs kedvezményezett. <a href="#" onclick="state.modal=null;state.tab='recipients';render();return false" style="color:var(--accent)">Vegyél fel egyet →</a></div>`
-          : state.data.recipients.map(r => `
-              <label style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--panel2);border-radius:8px;margin-bottom:6px;cursor:pointer">
-                <input type="checkbox" data-rid="${r.id}" ${(item.recipients || []).includes(r.id) ? 'checked' : ''} style="width:auto">
-                <span style="color:var(--text);margin:0">${esc(r.name)} <small style="color:var(--muted)">— ${esc(r.relation || '')}</small></span>
-              </label>
-            `).join('')
-        }
+      <div class="field-group">
+        <label class="field-label">Bizonyítékok / források</label>
+        <div class="evidence-list" id="evidence-list">
+          ${(c.evidence||[]).map((e,i) => evidenceHtml(e,i)).join('')}
+        </div>
+        <button class="btn" style="margin-top:10px" onclick="addEvidence()">+ Forrás hozzáadása</button>
       </div>
-    `,
-    footHTML: `
-      <button class="btn ghost" onclick="closeModal()">Mégse</button>
-      <button class="btn primary" onclick="saveItem(${edit ? `'${edit.id}'` : 'null'})">Mentés</button>
-    `,
-    onMount: () => {
-      renderDynamicFields(item.fields || {}, item.type);
-      document.getElementById('m_type').onchange = (e) => {
-        renderDynamicFields({}, e.target.value);
-      };
+      <div class="actions">
+        <button class="btn primary" onclick="saveDetail('${c.id}')">Mentés</button>
+        <button class="btn danger" onclick="deleteClaim('${c.id}')">Törlés</button>
+      </div>
+    </div>`;
+}
+
+function evidenceHtml(e, i) {
+  const cred = e.credibility || 50;
+  const color = cred >= 70 ? 'var(--success)' : cred >= 40 ? 'var(--warn)' : 'var(--danger)';
+  return `
+    <div class="evidence-item" data-idx="${i}">
+      <div>
+        <input type="text" class="e-source" value="${escapeHtml(e.source||'')}" placeholder="Forrás URL vagy név" style="margin-bottom:6px">
+        <textarea class="e-quote" rows="2" placeholder="Idézet vagy összefoglaló">${escapeHtml(e.quote||'')}</textarea>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+          <label style="font-size:0.78rem;color:var(--muted)">Megbízhatóság:</label>
+          <input type="range" class="e-cred" min="0" max="100" value="${cred}" style="flex:1">
+          <span class="cred-val" style="font-size:0.8rem;min-width:28px">${cred}%</span>
+        </div>
+        <div class="cred-bar"><div class="cred-fill" style="width:${cred}%;background:${color}"></div></div>
+      </div>
+      <button class="btn ghost" onclick="removeEvidence(${i})" style="align-self:start">×</button>
+    </div>`;
+}
+
+function addEvidence() {
+  const c = data.claims.find(x => x.id === editingId);
+  if (!c) return;
+  if (!c.evidence) c.evidence = [];
+  c.evidence.push({ source: '', quote: '', credibility: 50 });
+  renderDetail(document.getElementById('content'), editingId);
+  bindEvidenceEvents();
+}
+
+function removeEvidence(idx) {
+  const c = data.claims.find(x => x.id === editingId);
+  if (!c || !c.evidence) return;
+  c.evidence.splice(idx, 1);
+  renderDetail(document.getElementById('content'), editingId);
+  bindEvidenceEvents();
+}
+
+function bindEvidenceEvents() {
+  document.querySelectorAll('.e-cred').forEach(r => {
+    r.oninput = function() {
+      const val = this.value;
+      const item = this.closest('.evidence-item');
+      item.querySelector('.cred-val').textContent = val + '%';
+      const fill = item.querySelector('.cred-fill');
+      fill.style.width = val + '%';
+      fill.style.background = val >= 70 ? 'var(--success)' : val >= 40 ? 'var(--warn)' : 'var(--danger)';
+    };
+  });
+}
+
+function saveDetail(id) {
+  const c = data.claims.find(x => x.id === id);
+  if (!c) return;
+  c.claim = document.getElementById('d-claim').value.trim();
+  c.status = document.getElementById('d-status').value;
+  c.tags = document.getElementById('d-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+  c.note = document.getElementById('d-note').value.trim();
+  c.updated = Date.now();
+  const items = document.querySelectorAll('.evidence-item');
+  c.evidence = Array.from(items).map(item => ({
+    source: item.querySelector('.e-source').value.trim(),
+    quote: item.querySelector('.e-quote').value.trim(),
+    credibility: parseInt(item.querySelector('.e-cred').value, 10)
+  })).filter(e => e.source || e.quote);
+  save();
+  currentView = 'claims';
+  render();
+}
+
+function deleteClaim(id) {
+  if (!confirm('Biztosan törlöd ezt az állítást?')) return;
+  data.claims = data.claims.filter(c => c.id !== id);
+  save();
+  currentView = 'claims';
+  render();
+}
+
+function openDetail(id) {
+  editingId = id;
+  currentView = 'detail';
+  render();
+  bindEvidenceEvents();
+}
+
+function openModal(editId) {
+  editingId = editId || null;
+  document.getElementById('modal-title').textContent = editId ? 'Állítás szerkesztése' : 'Új állítás';
+  document.getElementById('m-claim').value = '';
+  document.getElementById('m-status').value = 'unverified';
+  document.getElementById('m-tags').value = '';
+  document.getElementById('m-note').value = '';
+  if (editId) {
+    const c = data.claims.find(x => x.id === editId);
+    if (c) {
+      document.getElementById('m-claim').value = c.claim;
+      document.getElementById('m-status').value = c.status;
+      document.getElementById('m-tags').value = (c.tags||[]).join(', ');
+      document.getElementById('m-note').value = c.note || '';
     }
-  };
-  render();
+  }
+  document.getElementById('modal').classList.add('open');
 }
 
-function renderDynamicFields(fields, type) {
-  const el = document.getElementById('m_dynamic');
-  if (!el) return;
-  const F = (k, label, ph, val) => `
-    <div class="field">
-      <label>${label}</label>
-      <input data-field="${k}" value="${esc(val || '')}" placeholder="${ph}">
-    </div>`;
-  let html = '';
-  if (type === 'password') {
-    html = F('site', 'Webhely / szolgáltatás', 'accounts.google.com', fields.site)
-         + F('username', 'Felhasználónév / e-mail', 'példa@email.hu', fields.username)
-         + F('password', 'Jelszó', '••••••••', fields.password)
-         + F('twofa', '2FA / helyreállítási kódok', 'ha van', fields.twofa);
-  } else if (type === 'bank') {
-    html = F('bank', 'Bank neve', 'pl. OTP', fields.bank)
-         + F('account', 'Számlaszám / IBAN', 'HU..', fields.account)
-         + F('card', 'Kártyaszám (utolsó 4)', '•••• 1234', fields.card)
-         + F('notes2', 'Egyéb', 'pl. netbank belépés', fields.notes2);
-  } else if (type === 'crypto') {
-    html = F('wallet', 'Tárca neve', 'pl. Ledger, MetaMask', fields.wallet)
-         + F('address', 'Nyilvános cím', '0x...', fields.address)
-         + F('seed', 'Seed phrase / helye', 'Hol van elrejtve papíron?', fields.seed);
-  } else if (type === 'insurance') {
-    html = F('company', 'Biztosító', '', fields.company)
-         + F('policy', 'Kötvényszám', '', fields.policy)
-         + F('contact', 'Kapcsolattartó / ügynök', '', fields.contact)
-         + F('notes2', 'Egyéb feltételek', '', fields.notes2);
-  } else if (type === 'message') {
-    html = F('subject', 'Tárgy', 'pl. Szeretlek, anya', fields.subject)
-         + `<div class="field"><label>Üzenet</label>
-            <textarea data-field="body" placeholder="Írd le, amit mondani szeretnél…" style="min-height:160px">${esc(fields.body || '')}</textarea></div>`;
-  } else if (type === 'doc') {
-    html = F('location', 'Fizikai hely', 'pl. fiókban a nappaliban, mappa', fields.location)
-         + F('desc', 'Leírás', 'Mi van ott és miért fontos?', fields.desc);
-  } else if (type === 'access') {
-    html = F('device', 'Eszköz', 'pl. iPhone, laptop', fields.device)
-         + F('pin', 'PIN / jelszó', '', fields.pin)
-         + F('where', 'Hol található', '', fields.where);
-  } else {
-    html = F('text', 'Tartalom', 'Bármi, amit meg szeretnél osztani', fields.text);
-  }
-  el.innerHTML = html;
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
 }
 
-async function saveItem(id) {
-  const type = document.getElementById('m_type').value;
-  const title = document.getElementById('m_title').value.trim();
-  if (!title) { toast('Adj címet az elemnek', 'danger'); return; }
-  const fields = {};
-  document.querySelectorAll('#m_dynamic [data-field]').forEach(el => {
-    fields[el.dataset.field] = el.value;
-  });
-  const notes = document.getElementById('m_notes').value;
-  const recipients = [];
-  document.querySelectorAll('#m_dynamic input[type=checkbox][data-rid], [data-rid]').forEach(el => {
-    if (el.checked) recipients.push(el.dataset.rid);
-  });
-
-  if (id) {
-    const item = state.data.items.find(x => x.id === id);
-    Object.assign(item, { type, title, fields, notes, recipients });
-    logEvent(`Elem szerkesztve: ${title}`);
-    toast('Elem frissítve', 'success');
+function saveModal() {
+  const claim = document.getElementById('m-claim').value.trim();
+  if (!claim) return alert('Az állítás megadása kötelező');
+  const status = document.getElementById('m-status').value;
+  const tags = document.getElementById('m-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+  const note = document.getElementById('m-note').value.trim();
+  if (editingId) {
+    const c = data.claims.find(x => x.id === editingId);
+    if (c) {
+      c.claim = claim; c.status = status; c.tags = tags; c.note = note; c.updated = Date.now();
+    }
   } else {
-    state.data.items.push({ id: randomId(), type, title, fields, notes, recipients, created: Date.now() });
-    logEvent(`Új elem: ${title}`);
-    toast('Elem hozzáadva', 'success');
+    data.claims.push({
+      id: uid(),
+      claim, status, tags, note,
+      evidence: [],
+      created: Date.now(),
+      updated: Date.now()
+    });
   }
+  save();
   closeModal();
-  await persist();
-}
-
-async function deleteItem(id) {
-  const item = state.data.items.find(x => x.id === id);
-  if (!item || !confirm(`Törlöd: „${item.title}”?`)) return;
-  state.data.items = state.data.items.filter(x => x.id !== id);
-  logEvent(`Elem törölve: ${item.title}`);
-  await persist();
-  toast('Törölve');
+  currentView = 'claims';
   render();
 }
 
-/* ---------- Recipients ---------- */
-function renderRecipients(body, actions) {
-  actions.innerHTML = `<button class="btn primary" onclick="openRecipientModal()">+ Új kedvezményezett</button>`;
+function renderStats(el) {
+  const total = data.claims.length;
+  const verified = data.claims.filter(c => c.status === 'verified').length;
+  const disputed = data.claims.filter(c => c.status === 'disputed').length;
+  const withEvidence = data.claims.filter(c => c.evidence && c.evidence.length).length;
+  const avgCred = (() => {
+    let sum = 0, n = 0;
+    data.claims.forEach(c => (c.evidence||[]).forEach(e => { sum += e.credibility||50; n++; }));
+    return n ? Math.round(sum / n) : 0;
+  })();
+  el.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Összes állítás</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--success)">${verified}</div><div class="stat-label">Ellenőrzött</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--warn)">${disputed}</div><div class="stat-label">Vitatott</div></div>
+      <div class="stat-card"><div class="stat-value">${withEvidence}</div><div class="stat-label">Forrással rendelkezik</div></div>
+      <div class="stat-card"><div class="stat-value">${avgCred}%</div><div class="stat-label">Átlagos forrás-megbízhatóság</div></div>
+    </div>
+    <p style="color:var(--muted);max-width:560px">A saját, forrásokkal ellátott tudásgráf a legjobb védelem a 2026+ szintű generatív zaj és deepfake-áradat ellen. Minél több ellenőrzött állításod van, annál erősebb a személyes „igazság-hálód”.</p>`;
+}
 
-  if (state.data.recipients.length === 0) {
-    body.innerHTML = `<div class="empty"><div class="big">👥</div>
-      <h3 style="margin-bottom:6px;color:var(--text)">Még nincs senki</h3>
-      <p>Vegyél fel embereket (házastárs, gyerek, ügyvéd), és rendeld hozzá, ki mit kapjon.</p>
-    </div>`;
-    return;
+function renderGraph(el) {
+  el.innerHTML = `<div class="graph-container"><canvas id="graph-canvas"></canvas></div>
+    <p style="margin-top:12px;font-size:0.85rem;color:var(--muted)">A gráf a címkék és közös források alapján kapcsolja össze az állításokat. Húzd az egérrel a mozgatáshoz.</p>`;
+  setTimeout(drawGraph, 50);
+}
+
+function drawGraph() {
+  const canvas = document.getElementById('graph-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * devicePixelRatio;
+  canvas.height = rect.height * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  const w = rect.width, h = rect.height;
+
+  const nodes = data.claims.map((c,i) => ({
+    id: c.id,
+    label: c.claim.slice(0,40) + (c.claim.length>40?'…':''),
+    status: c.status,
+    tags: c.tags || [],
+    x: w/2 + Math.cos(i * 2.3) * (w*0.28),
+    y: h/2 + Math.sin(i * 2.3) * (h*0.28),
+    vx: 0, vy: 0
+  }));
+
+  // simple force
+  for (let iter=0; iter<80; iter++) {
+    for (let i=0;i<nodes.length;i++) {
+      for (let j=i+1;j<nodes.length;j++) {
+        const a = nodes[i], b = nodes[j];
+        let dx = b.x - a.x, dy = b.y - a.y;
+        let dist = Math.sqrt(dx*dx+dy*dy) || 1;
+        let force = (120 - dist) * 0.02;
+        // attract if shared tags
+        const shared = a.tags.filter(t => b.tags.includes(t)).length;
+        if (shared) force -= shared * 8;
+        dx /= dist; dy /= dist;
+        a.vx -= dx * force; a.vy -= dy * force;
+        b.vx += dx * force; b.vy += dy * force;
+      }
+    }
+    nodes.forEach(n => {
+      n.x += n.vx * 0.6; n.y += n.vy * 0.6;
+      n.vx *= 0.7; n.vy *= 0.7;
+      n.x = Math.max(40, Math.min(w-40, n.x));
+      n.y = Math.max(40, Math.min(h-40, n.y));
+    });
   }
 
-  const gradClasses = ['', 'g2', 'g3', 'g4', 'g5'];
-  body.innerHTML = state.data.recipients.map((r, idx) => {
-    const assigned = state.data.items.filter(i => (i.recipients || []).includes(r.id));
-    const initials = r.name.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
-    return `
-      <div class="card">
-        <div class="row between" style="margin-bottom:14px">
-          <div class="row">
-            <div class="avatar ${gradClasses[idx % 5]}">${initials}</div>
-            <div>
-              <div style="font-weight:650">${esc(r.name)}</div>
-              <div style="color:var(--muted); font-size:13px">${esc(r.relation || '')}${r.email ? ' · ' + esc(r.email) : ''}</div>
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn sm" onclick="openRecipientModal('${r.id}')">Szerkeszt</button>
-            <button class="btn sm ghost" onclick="deleteRecipient('${r.id}')">✕</button>
-          </div>
-        </div>
-        ${r.note ? `<div style="color:var(--muted); font-size:13.5px; margin-bottom:12px">${esc(r.note)}</div>` : ''}
-        <div style="font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; font-weight:600; margin-bottom:8px">
-          Kap: ${assigned.length} elem
-        </div>
-        ${assigned.length === 0
-          ? `<div class="hint">Még nincs hozzárendelt elem.</div>`
-          : assigned.map(i => {
-              const t = ITEM_TYPES[i.type] || ITEM_TYPES.other;
-              return `<div style="display:inline-block; margin:0 6px 6px 0" class="tag ${t.color}">${t.icon} ${esc(i.title)}</div>`;
-            }).join('')
-        }
-        <div style="margin-top:12px">
-          <button class="btn sm" onclick="openReleaseModal('${r.id}')">🔓 Kioldási csomag generálása</button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function openRecipientModal(id) {
-  const edit = id ? state.data.recipients.find(x => x.id === id) : null;
-  const r = edit || { name: '', relation: '', email: '', phone: '', note: '' };
-  state.modal = {
-    title: edit ? 'Kedvezményezett szerkesztése' : 'Új kedvezményezett',
-    bodyHTML: `
-      <div class="field"><label>Név</label><input id="r_name" value="${esc(r.name)}" placeholder="pl. Kovács Anna"></div>
-      <div class="field"><label>Kapcsolat</label><input id="r_rel" value="${esc(r.relation || '')}" placeholder="pl. házastárs, ügyvéd, testvér"></div>
-      <div class="field"><label>E-mail</label><input id="r_email" value="${esc(r.email || '')}" type="email" placeholder="anna@email.hu"></div>
-      <div class="field"><label>Telefon</label><input id="r_phone" value="${esc(r.phone || '')}" placeholder="+36 ..."></div>
-      <div class="field"><label>Megjegyzés</label><textarea id="r_note" placeholder="pl. Ő az egyetlen, aki ismeri a seed phrase helyét.">${esc(r.note || '')}</textarea></div>
-    `,
-    footHTML: `
-      <button class="btn ghost" onclick="closeModal()">Mégse</button>
-      <button class="btn primary" onclick="saveRecipient(${edit ? `'${edit.id}'` : 'null'})">Mentés</button>
-    `
-  };
-  render();
-}
-
-async function saveRecipient(id) {
-  const name = document.getElementById('r_name').value.trim();
-  if (!name) { toast('Adj nevet', 'danger'); return; }
-  const data = {
-    name,
-    relation: document.getElementById('r_rel').value,
-    email: document.getElementById('r_email').value,
-    phone: document.getElementById('r_phone').value,
-    note: document.getElementById('r_note').value,
-  };
-  if (id) {
-    Object.assign(state.data.recipients.find(x => x.id === id), data);
-    logEvent(`Kedvezményezett szerkesztve: ${name}`);
-  } else {
-    state.data.recipients.push({ id: randomId(), created: Date.now(), ...data });
-    logEvent(`Új kedvezményezett: ${name}`);
+  // edges
+  ctx.strokeStyle = 'rgba(91,156,255,0.25)';
+  ctx.lineWidth = 1;
+  for (let i=0;i<nodes.length;i++) {
+    for (let j=i+1;j<nodes.length;j++) {
+      const shared = nodes[i].tags.filter(t => nodes[j].tags.includes(t)).length;
+      if (shared) {
+        ctx.beginPath();
+        ctx.moveTo(nodes[i].x, nodes[i].y);
+        ctx.lineTo(nodes[j].x, nodes[j].y);
+        ctx.stroke();
+      }
+    }
   }
-  closeModal();
-  await persist();
-  toast('Mentve', 'success');
-}
 
-async function deleteRecipient(id) {
-  const r = state.data.recipients.find(x => x.id === id);
-  if (!r || !confirm(`Törlöd: „${r.name}”? Az elemekről is lekerül.`)) return;
-  state.data.recipients = state.data.recipients.filter(x => x.id !== id);
-  state.data.items.forEach(i => {
-    i.recipients = (i.recipients || []).filter(x => x !== id);
+  // nodes
+  nodes.forEach(n => {
+    const color = n.status==='verified' ? '#3dd68c' : n.status==='disputed' ? '#f5a524' : '#5b9cff';
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, 10, 0, Math.PI*2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.fillStyle = '#e8eef6';
+    ctx.font = '11px Inter, system-ui';
+    ctx.fillText(n.label, n.x + 14, n.y + 4);
   });
-  logEvent(`Kedvezményezett törölve: ${r.name}`);
-  await persist();
-  toast('Törölve');
-  render();
 }
 
-/* ---------- Release package ---------- */
-function openReleaseModal(rid) {
-  const r = state.data.recipients.find(x => x.id === rid);
-  if (!r) return;
-  const items = state.data.items.filter(i => (i.recipients || []).includes(rid));
-  if (items.length === 0) { toast('Nincs hozzárendelt elem', 'warn'); return; }
-  state.modal = {
-    title: `Kioldási csomag — ${esc(r.name)}`,
-    bodyHTML: `
-      <p style="color:var(--muted); font-size:13.5px; margin-bottom:16px">
-        Ez a csomag <b>${items.length}</b> elemet tartalmaz. Titkosítva lesz egy külön jelszóval, amit megadsz <b>${esc(r.name)}</b>-nek.
-        Nyomtasd ki ezt a jelszót, és tartsd vele egy biztonságos helyen (végrendelet, ügyvéd, széf).
-      </p>
-      <div class="field">
-        <label>Csomag jelszava (generálom, de átírható)</label>
-        <div class="row">
-          <input id="rel_pw" value="${randomPassphrase(4)}-${Math.floor(Math.random()*9000+1000)}">
-          <button class="btn sm" onclick="document.getElementById('rel_pw').value = randomPassphrase(4)+'-'+Math.floor(Math.random()*9000+1000)">↻</button>
-        </div>
-        <div class="hint">Ezt add át ${esc(r.name)}-nek <b>külön csatornán</b> (pl. személyesen, papíron).</div>
-      </div>
-      <div class="field">
-        <label>Elmegy az elemek listája</label>
-        <div style="background:var(--panel2); padding:10px 14px; border-radius:9px; font-size:13px; color:var(--muted)">
-          ${items.map(i => `• ${esc(i.title)}`).join('<br>')}
-        </div>
-      </div>
-    `,
-    footHTML: `
-      <button class="btn ghost" onclick="closeModal()">Mégse</button>
-      <button class="btn primary" onclick="exportRelease('${rid}')">📥 Csomag letöltése</button>
-    `
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Events
+document.querySelectorAll('.nav-item[data-view]').forEach(el => {
+  el.onclick = () => {
+    document.querySelectorAll('.nav-item[data-view]').forEach(x => x.classList.remove('active'));
+    el.classList.add('active');
+    currentView = el.dataset.view;
+    render();
   };
-  render();
-}
-
-async function exportRelease(rid) {
-  const r = state.data.recipients.find(x => x.id === rid);
-  const items = state.data.items.filter(i => (i.recipients || []).includes(rid));
-  const pw = document.getElementById('rel_pw').value;
-  if (pw.length < 6) { toast('A jelszó túl rövid', 'danger'); return; }
-
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const key = await deriveKey(pw, salt, 200000);
-  const payload = {
-    version: 1,
-    createdAt: Date.now(),
-    owner: state.data.config.executorName || 'Ismeretlen',
-    recipient: { name: r.name, relation: r.relation, email: r.email },
-    message: state.data.config.emergencyNote || '',
-    items: items.map(i => ({
-      title: i.title,
-      type: i.type,
-      typeLabel: (ITEM_TYPES[i.type] || ITEM_TYPES.other).label,
-      fields: i.fields,
-      notes: i.notes,
-    })),
+});
+document.querySelectorAll('.nav-item[data-filter]').forEach(el => {
+  el.onclick = () => {
+    document.querySelectorAll('.nav-item[data-filter]').forEach(x => x.classList.remove('active'));
+    el.classList.add('active');
+    currentFilter = el.dataset.filter;
+    if (currentView !== 'claims') {
+      currentView = 'claims';
+      document.querySelectorAll('.nav-item[data-view]').forEach(x => x.classList.remove('active'));
+      document.querySelector('[data-view="claims"]').classList.add('active');
+    }
+    render();
   };
-  const blob = await encryptJSON(key, payload);
-  const out = {
-    format: 'orokseg-szef-release-v1',
-    salt: b64(salt),
-    iv: blob.iv,
-    ct: blob.ct,
-    info: {
-      recipient: r.name,
-      owner: state.data.config.executorName || '',
-      itemCount: items.length,
-      createdAt: Date.now(),
-    },
-  };
-  download(`orokseg-${r.name.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.release.json`,
-    JSON.stringify(out, null, 2));
-  logEvent(`Kioldási csomag generálva: ${r.name}`);
-  await persist();
-  toast('Csomag letöltve. Add át a jelszót a kedvezményezettnek!', 'success');
-}
+});
 
-/* ---------- Dead man's switch ---------- */
-function renderSwitch(body, actions, s) {
-  actions.innerHTML = `<button class="btn primary" onclick="doCheckIn()">✓ Bejelentkezés most</button>`;
-  const c = state.data.config;
+document.getElementById('btn-new').onclick = () => openModal();
+document.getElementById('modal-cancel').onclick = closeModal;
+document.getElementById('modal-save').onclick = saveModal;
+document.getElementById('modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
 
-  let banner = '';
-  if (s.status === 'overdue') {
-    banner = `<div class="hero danger"><div><div class="label">Figyelem</div>
-      <div class="num">LEJÁRT</div>
-      <div class="sub">A kapcsoló kivált. Most kell kézbesíteni a csomagokat a kedvezményezetteknek.</div>
-    </div></div>`;
-  } else if (s.status === 'grace') {
-    banner = `<div class="hero danger"><div><div class="label">Türelmi idő</div>
-      <div class="num">${s.graceLeft} nap</div>
-      <div class="sub">Ha nem jelentkezel be, a széf kiold.</div>
-    </div></div>`;
-  } else if (s.status === 'warn') {
-    banner = `<div class="hero warn"><div><div class="label">Közeledik</div>
-      <div class="num">${s.daysLeft} nap</div>
-      <div class="sub">Jelentkezz be a következő 5 napban.</div>
-    </div></div>`;
-  }
+document.getElementById('search').oninput = e => {
+  searchQuery = e.target.value.trim();
+  if (currentView === 'claims') render();
+};
 
-  body.innerHTML = `
-    ${banner}
-    <div class="card">
-      <h3>Kapcsoló beállításai</h3>
-      <div class="grid-2">
-        <div class="field">
-          <label>Bejelentkezési időköz (nap)</label>
-          <input type="number" id="sw_interval" min="1" max="730" value="${c.checkInIntervalDays}">
-          <div class="hint">Ennyi naponta kell bejelentkezned. Ha elmulasztod, elindul a türelmi idő.</div>
-        </div>
-        <div class="field">
-          <label>Türelmi idő (nap)</label>
-          <input type="number" id="sw_grace" min="0" max="90" value="${c.gracePeriodDays}">
-          <div class="hint">Ennyi napod van pótolni, mielőtt a széf kiold.</div>
-        </div>
-      </div>
-      <div class="field">
-        <label>Üzenet a kedvezményezetteknek (a kioldási csomagokhoz csatolva)</label>
-        <textarea id="sw_note" placeholder="pl. Ha ezt olvassátok, tudjátok, hogy mindent megtettem, hogy felkészüljek. Kérlek, először hívjátok fel Évát.">${esc(c.emergencyNote || '')}</textarea>
-      </div>
-      <button class="btn primary" onclick="saveSwitch()">Beállítások mentése</button>
-    </div>
-
-    <div class="card">
-      <h3>Idővonal</h3>
-      <div class="scroll-x">
-      <table>
-        <tr><th>Esemény</th><th>Dátum</th><th>Státusz</th></tr>
-        <tr>
-          <td>Utolsó bejelentkezés</td>
-          <td>${fmtDateTime(s.last)}</td>
-          <td><span class="tag green">✓</span></td>
-        </tr>
-        <tr>
-          <td>Következő esedékes</td>
-          <td>${fmtDate(s.deadline)}</td>
-          <td><span class="tag ${s.status === 'ok' ? 'blue' : s.status === 'warn' ? 'orange' : ''}">${s.status === 'ok' ? 'Várható' : s.status === 'warn' ? 'Hamarosan' : 'Lejárt'}</span></td>
-        </tr>
-        <tr>
-          <td>Türelmi idő vége (kioldás)</td>
-          <td>${fmtDate(s.graceEnd)}</td>
-          <td><span class="tag purple">Kioldás</span></td>
-        </tr>
-      </table>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Hogyan működik a gyakorlatban?</h3>
-      <p style="color:var(--muted); font-size:13.5px; line-height:1.75">
-        1. Amíg élsz, rendszeresen (pl. havonta) bejelentkezel ide, és megnyomod a „Bejelentkezés most” gombot.<br>
-        2. Ha elmulasztod, és letelik a türelmi idő, ez az oldal <b>kioldás módba</b> kerül: a fejléc figyelmeztet, a kedvezményezettek csomagjai pedig letölthetők lesznek.<br>
-        3. A csomagokat és a hozzá tartozó jelszavakat <b>előre</b> el kell juttatnod a kedvezményezettekhez vagy a végrehajtóhoz (ügyvéd, jegyző, családtag).<br>
-        4. Az üzenetváltás nélküli, automatikus e-mail-küldést szándékosan nem tartalmazza: minden helyben, a böngésződben marad.
-      </p>
-    </div>
-  `;
-}
-
-async function saveSwitch() {
-  state.data.config.checkInIntervalDays = Math.max(1, parseInt(document.getElementById('sw_interval').value) || 30);
-  state.data.config.gracePeriodDays = Math.max(0, parseInt(document.getElementById('sw_grace').value) || 7);
-  state.data.config.emergencyNote = document.getElementById('sw_note').value;
-  logEvent('Kapcsoló beállítások frissítve');
-  await persist();
-  toast('Beállítások mentve', 'success');
-  render();
-}
-
-async function doCheckIn() {
-  state.data.config.lastCheckIn = Date.now();
-  logEvent('Bejelentkezés');
-  await persist();
-  toast('Bejelentkezve — az óra újraindult', 'success');
-  render();
-}
-
-/* ---------- Log ---------- */
-function renderLog(body, actions) {
-  actions.innerHTML = `<button class="btn ghost" onclick="clearLog()">Napló törlése</button>`;
-  if (state.data.log.length === 0) {
-    body.innerHTML = `<div class="empty"><div class="big">📜</div><p>Még nincs esemény.</p></div>`;
-    return;
-  }
-  body.innerHTML = `<div class="card">
-    <div class="scroll-x"><table>
-      <tr><th style="width:180px">Időpont</th><th>Esemény</th></tr>
-      ${state.data.log.map(l => `<tr><td style="color:var(--muted)">${fmtDateTime(l.t)}</td><td>${esc(l.msg)}</td></tr>`).join('')}
-    </table></div>
-  </div>`;
-}
-async function clearLog() {
-  if (!confirm('Törlöd a naplót?')) return;
-  state.data.log = [];
-  await persist();
-  render();
-}
-
-/* ---------- Settings ---------- */
-function renderSettings(body, actions) {
-  actions.innerHTML = '';
-  const c = state.data.config;
-  body.innerHTML = `
-    <div class="card">
-      <h3>Végrehajtó / ügyvéd</h3>
-      <div class="grid-2">
-        <div class="field"><label>Név</label><input id="s_exec" value="${esc(c.executorName || '')}" placeholder="pl. Dr. Kovács Péter ügyvéd"></div>
-        <div class="field"><label>Elérhetőség</label><input id="s_execcontact" value="${esc(c.executorContact || '')}" placeholder="telefon, e-mail, cím"></div>
-      </div>
-      <button class="btn primary" onclick="saveSettings()">Mentés</button>
-    </div>
-
-    <div class="card">
-      <h3>Titkosított biztonsági másolat</h3>
-      <p style="color:var(--muted); font-size:13.5px; margin-bottom:12px">
-        A mentett fájl a jelenlegi mesterjelszóval titkosított. Ha elveszíted a jelszót, a mentés is elveszik.
-        Tárold külső meghajtón vagy nyomtatott papíron a jelszót.
-      </p>
-      <div class="row">
-        <button class="btn" onclick="exportBackup()">📥 Export (titkosított)</button>
-        <label class="btn" style="cursor:pointer">
-          📤 Import
-          <input type="file" accept="application/json" style="display:none" onchange="importBackup(event)">
-        </label>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Biztonság</h3>
-      <div class="row between" style="padding:8px 0">
-        <div>
-          <div style="font-weight:600">Automatikus zárolás</div>
-          <div class="hint">10 perc tétlenség után a széf újra kéri a jelszót.</div>
-        </div>
-        <div style="color:var(--success); font-weight:600">Bekapcsolva</div>
-      </div>
-      <div class="divider"></div>
-      <div class="row between" style="padding:8px 0">
-        <div>
-          <div style="font-weight:600">Mesterjelszó cseréje</div>
-          <div class="hint">Új kulcs származik, a széf teljesen újratitkosítódik.</div>
-        </div>
-        <button class="btn sm" onclick="openChangePassword()">Csere</button>
-      </div>
-    </div>
-
-    <div class="card danger-zone">
-      <h3>Veszélyzóna</h3>
-      <div class="row between" style="padding:8px 0">
-        <div>
-          <div style="font-weight:600">Széf teljes törlése</div>
-          <div class="hint">Minden adat, kedvezményezett és napló véglegesen törlődik erről az eszközről.</div>
-        </div>
-        <button class="btn danger sm" onclick="wipeVault()">Törlés</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Névjegy</h3>
-      <p style="color:var(--muted); font-size:13.5px; line-height:1.7">
-        <b>ÖrökségSzéf</b> — egy fájlból álló, szerver nélküli digitális végrendelet.
-        Minden adat a böngésződ tárolójában marad, AES-256-GCM titkosítással.
-        Nincs felhő, nincs regisztráció, nincs telemetria.
-      </p>
-    </div>
-  `;
-}
-
-async function saveSettings() {
-  state.data.config.executorName = document.getElementById('s_exec').value;
-  state.data.config.executorContact = document.getElementById('s_execcontact').value;
-  logEvent('Beállítások mentve');
-  await persist();
-  toast('Mentve', 'success');
-}
-
-async function exportBackup() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  download(`orokseg-szef-backup-${Date.now()}.json`, raw);
-  toast('Biztonsági másolat letöltve', 'success');
-}
-
-function importBackup(ev) {
-  const file = ev.target.files[0];
+document.getElementById('btn-export').onclick = () => {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `aethervault-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+};
+document.getElementById('btn-import').onclick = () => document.getElementById('import-file').click();
+document.getElementById('import-file').onchange = e => {
+  const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = async () => {
+  reader.onload = ev => {
     try {
-      const parsed = JSON.parse(reader.result);
-      if (!parsed.salt || !parsed.iv || !parsed.ct) throw new Error('bad');
-      if (!confirm('Ez felülírja a jelenlegi széfet. Folytatod?')) return;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-      location.reload();
-    } catch { toast('Érvénytelen fájl', 'danger'); }
+      const imported = JSON.parse(ev.target.result);
+      if (imported.claims) {
+        data = imported;
+        save();
+        render();
+        alert('Import sikeres: ' + data.claims.length + ' állítás');
+      }
+    } catch(err) { alert('Hibás fájl'); }
   };
   reader.readAsText(file);
-}
+};
 
-function openChangePassword() {
-  state.modal = {
-    title: 'Mesterjelszó cseréje',
-    bodyHTML: `
-      <div class="field"><label>Új mesterjelszó</label><input type="password" id="np1"></div>
-      <div class="field"><label>Új mesterjelszó újra</label><input type="password" id="np2"></div>
-      <div class="hint">⚠️ A régi biztonsági másolatokhoz a régi jelszó kell. Készíts újat a csere után.</div>
-    `,
-    footHTML: `
-      <button class="btn ghost" onclick="closeModal()">Mégse</button>
-      <button class="btn primary" onclick="changePassword()">Csere</button>
-    `
-  };
-  render();
-}
-
-async function changePassword() {
-  const p1 = document.getElementById('np1').value;
-  const p2 = document.getElementById('np2').value;
-  if (p1.length < 8) { toast('Legalább 8 karakter', 'danger'); return; }
-  if (p1 !== p2) { toast('Nem egyezik', 'danger'); return; }
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  state.salt = salt;
-  state.key = await deriveKey(p1, salt);
-  logEvent('Mesterjelszó megváltozott');
-  await persist();
-  closeModal();
-  toast('Mesterjelszó megváltozott', 'success');
-}
-
-async function wipeVault() {
-  if (!confirm('VÉGLEGES törlés. Biztos vagy benne?')) return;
-  if (!confirm('Tényleg? Minden elveszik, ami a széfben van.')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  location.reload();
-}
-
-/* ---------- Modal plumbing ---------- */
-function renderModal() {
-  const m = state.modal;
-  const existing = document.getElementById('modalRoot');
-  if (existing) existing.remove();
-  const wrap = document.createElement('div');
-  wrap.id = 'modalRoot';
-  wrap.className = 'modal-bg';
-  wrap.innerHTML = `
-    <div class="modal">
-      <div class="modal-head">
-        <h3>${m.title}</h3>
-        <button class="close-x" onclick="closeModal()">×</button>
-      </div>
-      <div class="modal-body">${m.bodyHTML}</div>
-      <div class="modal-foot">${m.footHTML}</div>
-    </div>
-  `;
-  wrap.onclick = (e) => { if (e.target === wrap) closeModal(); };
-  document.body.appendChild(wrap);
-  if (m.onMount) m.onMount();
-}
-function closeModal() {
-  state.modal = null;
-  const el = document.getElementById('modalRoot');
-  if (el) el.remove();
-}
-
-/* ---------- Download helper ---------- */
-function download(filename, content) {
-  const blob = new Blob([content], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click();
-  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
-}
-
-/* ---------- Auto-lock ---------- */
-let idleTimer;
-function resetIdle() {
-  state.lastActivity = Date.now();
-  clearTimeout(idleTimer);
-  if (state.unlocked) {
-    idleTimer = setTimeout(() => {
-      if (Date.now() - state.lastActivity >= SESSION_TIMEOUT_MS) {
-        lockNow();
-        toast('Automatikus zárolás tétlenség miatt', 'warn');
-      }
-    }, SESSION_TIMEOUT_MS + 500);
-  }
-}
-function lockNow() {
-  state.key = null;
-  state.data = null;
-  state.unlocked = false;
-  state.modal = null;
-  document.getElementById('modalRoot')?.remove();
-  render();
-}
-['mousemove','keydown','click','scroll','touchstart'].forEach(e =>
-  window.addEventListener(e, resetIdle, { passive: true }));
-
-/* ---------- Root render ---------- */
-function render() {
-  const root = document.getElementById('root');
-  if (!state.unlocked) {
-    renderLock(root);
-  } else {
-    renderApp(root);
-    resetIdle();
-  }
-}
-
+// Init
+load();
+updateCounts();
 render();
 </script>
 </body>
